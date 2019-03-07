@@ -1,5 +1,6 @@
 package com.sksamuel.elastic4s
 
+import com.sksamuel.elastic4s.requests.searches.InnerHit
 import io.circe._
 import io.circe.jawn._
 
@@ -36,6 +37,13 @@ package object circe {
   )
   implicit def hitReaderWithCirce[T](implicit decoder: Decoder[T]): HitReader[T] = new HitReader[T] {
     override def read(hit: Hit): Try[T] = decode[T](hit.sourceAsString).fold(Failure(_), Success(_))
+  }
+
+  @implicitNotFound(
+    "No Decoder for type ${T} found. Use 'import io.circe.generic.auto._' or provide an implicit Decoder instance "
+  )
+  implicit def innerHitReaderWithCirce[T](implicit decoder: Decoder[T]): InnerHitReader[T] = new InnerHitReader[T] {
+    override def read(hit: InnerHit): Try[T] = decode[T](hit.sourceAsString).fold(Failure(_), Success(_))
   }
 
   @implicitNotFound(

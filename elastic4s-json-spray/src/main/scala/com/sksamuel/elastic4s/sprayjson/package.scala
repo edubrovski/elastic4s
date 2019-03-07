@@ -1,5 +1,6 @@
 package com.sksamuel.elastic4s
 
+import com.sksamuel.elastic4s.requests.searches.InnerHit
 import spray.json._
 
 import scala.annotation.implicitNotFound
@@ -15,6 +16,13 @@ package object sprayjson {
   @implicitNotFound("No RootJsonReader for type ${T} found. Bring an implicit RootJsonReader[T] instance in scope")
   implicit def sprayJsonHitReader[T](implicit r: RootJsonReader[T]): HitReader[T] = new HitReader[T] {
     override def read(hit: Hit): Try[T] = Try {
+      r.read(hit.sourceAsString.parseJson)
+    }
+  }
+
+  @implicitNotFound("No RootJsonReader for type ${T} found. Bring an implicit RootJsonReader[T] instance in scope")
+  implicit def sprayJsonInnerHitReader[T](implicit r: RootJsonReader[T]): InnerHitReader[T] = new InnerHitReader[T] {
+    override def read(hit: InnerHit): Try[T] = Try {
       r.read(hit.sourceAsString.parseJson)
     }
   }

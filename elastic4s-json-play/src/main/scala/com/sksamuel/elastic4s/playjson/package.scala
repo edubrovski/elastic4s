@@ -1,5 +1,6 @@
 package com.sksamuel.elastic4s
 
+import com.sksamuel.elastic4s.requests.searches.InnerHit
 import play.api.libs.json.{Json, Reads, Writes}
 
 import scala.annotation.implicitNotFound
@@ -15,6 +16,13 @@ package object playjson {
   @implicitNotFound("No Reads for type ${T} found. Bring an implicit Reads[T] instance in scope")
   implicit def playJsonHitReader[T](implicit r: Reads[T]): HitReader[T] = new HitReader[T] {
     override def read(hit: Hit): Try[T] = Try {
+      Json.parse(hit.sourceAsString).as[T]
+    }
+  }
+
+  @implicitNotFound("No Reads for type ${T} found. Bring an implicit Reads[T] instance in scope")
+  implicit def playJsonInnerHitReader[T](implicit r: Reads[T]): InnerHitReader[T] = new InnerHitReader[T] {
+    override def read(hit: InnerHit): Try[T] = Try {
       Json.parse(hit.sourceAsString).as[T]
     }
   }
